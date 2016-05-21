@@ -1,5 +1,9 @@
 #!/usr/bin/env python
 
+from PIL import Image
+from PIL import ImageDraw
+from PIL import ImageTk
+
 import tkinter as tk
 
 class ComplexPlane:
@@ -35,7 +39,9 @@ class ComplexPlane:
                pixel_origin=None):      # pixel position of (0 + 0j)
     """ creates a complex plane """
     super().__init__()
-    self.image = tk.PhotoImage(width=pixel_size[0], height=pixel_size[1])
+#    self.image = tk.PhotoImage(width=pixel_size[0], height=pixel_size[1])
+    self.img = Image.new("RGB", pixel_size)
+    self.draw = ImageDraw.Draw(self.img)
     if not pixel_origin:
       pixel_origin = (pixel_size[0] // 2, pixel_size[1] // 2)
     self.pixel_origin = pixel_origin
@@ -44,7 +50,8 @@ class ComplexPlane:
 
   def __iter__(self):
     return ComplexPlane.ComplexPlaneIterator(
-      (self.image.width(), self.image.height()),
+      #(self.image.width(), self.image.height()),
+      self.img.size,
       self.p2c)
 
   def c2p(self, z):
@@ -62,19 +69,20 @@ class ComplexPlane:
 
   def set_pixel(self, p, color):
     """ sets the pixel p to color """
-    self.image.put(color, p)
+#    self.image.put(color, p)
+    self.draw.point(p, color)
 
-  def get_pixel(self, p):
-    """ returns the color of pixel p """
-    return self.image.get(p)
+#  def get_pixel(self, p):
+#    """ returns the color of pixel p """
+#    return self.image.get(p)
 
   def set_complex(self, z, color):
     """ sets the corresponding pixel of complex z to color """
     self.set_pixel(self.c2p(z), color)
 
-  def get_complex(self, z):
-    """ returns the color of the pixel coresponding to complex z """
-    return self.get_pixel(self.c2p(z))
+#  def get_complex(self, z):
+#    """ returns the color of the pixel coresponding to complex z """
+#    return self.get_pixel(self.c2p(z))
 
   def pixels_as_complex(self):
     """ iterates over all pixels as complex numbers """
@@ -84,4 +92,5 @@ class ComplexPlane:
 
   def get_tk_image(self):
     """ i hate this function, ... """
-    return self.image
+#    return self.image
+    return ImageTk.PhotoImage(self.img)
