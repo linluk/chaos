@@ -32,8 +32,8 @@ class Mandelbrot:
 
   def render(self):
     t0 = time.clock()
-    imax = 256
-    self.complex_plane = cp.ComplexPlane((400, 300), (3, 3))
+    imax = 32
+    self.complex_plane = cp.ComplexPlane((240, 180), (3, 3))
     for c, p in self.complex_plane:
       z = 0
       icnt = 0
@@ -41,9 +41,9 @@ class Mandelbrot:
         z = z * z + c
         icnt += 1
         if icnt >= imax:
-          self.complex_plane.set_pixel(p, '#0808ff')
+          self.complex_plane.set_pixel(p, (0x08, 0x08, 0xff))
         else:
-          self.complex_plane.set_pixel(p, '#ff0000')
+          self.complex_plane.set_pixel(p, (0xff, 0, 0))
     t1 = time.clock()
     self.img_container.configure(image = self.complex_plane.get_tk_image())
     print('rendered mandelbrot in {:.3f} seconds'.format(t1 -t0))

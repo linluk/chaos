@@ -4,7 +4,7 @@ from PIL import Image
 from PIL import ImageDraw
 from PIL import ImageTk
 
-import tkinter as tk
+#import tkinter as tk
 
 class ComplexPlane:
 
@@ -91,6 +91,8 @@ class ComplexPlane:
         yield self.p2c((x, y))
 
   def get_tk_image(self):
-    """ i hate this function, ... """
-#    return self.image
-    return ImageTk.PhotoImage(self.img)
+    """ returns an tkinter.PhotoImage instance for
+    """
+    tki = ImageTk.PhotoImage(self.img)
+    self.__work_around = tki
+    return tki
