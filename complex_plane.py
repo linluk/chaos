@@ -25,51 +25,44 @@ class ComplexPlane:
       """ returns the next pair of pixel- and complex coord """
       x, y = self.p
       y += 1
-      if y >= self.w:
+      if y >= self.h:
         y = 0
         x += 1
-        if x >= self.h:
+        if x >= self.w:
           raise StopIteration()
       self.p = (x, y)
       return self.p2c(self.p), self.p
 
   def __init__(self,
-               pixel_size=(320, 240),   # size of the plane on the screen
-               complex_size=(3.2, 2.4), # size of the complex plane
-               pixel_origin=None):      # pixel position of (0 + 0j)
+               width, height, # in pixels
+               start, end):   # complex coordinates
     """ creates a complex plane """
     super().__init__()
-#    self.image = tk.PhotoImage(width=pixel_size[0], height=pixel_size[1])
-    self.img = Image.new("RGB", pixel_size)
+    self.img = Image.new("RGB", (width, height))
     self.draw = ImageDraw.Draw(self.img)
-    if not pixel_origin:
-      pixel_origin = (pixel_size[0] // 2, pixel_size[1] // 2)
-    self.pixel_origin = pixel_origin
-    self.pixel_delta = (complex_size[0] / pixel_size[0],
-                        complex_size[1] / pixel_size[1])
+    self.start = complex(start)
+    self.end = complex(end)
+    self.delta = complex((self.end.real - self.start.real) / width,
+                         (self.end.imag - self.start.imag) / height)
 
   def __iter__(self):
     return ComplexPlane.ComplexPlaneIterator(
-      #(self.image.width(), self.image.height()),
       self.img.size,
       self.p2c)
 
   def c2p(self, z):
     """ returns the pixel coord for complex z """
-    z = complex(z)
-    p = (int((z.real / self.pixel_delta[0] + self.pixel_origin[0]) + 0.5),
-         int((z.imag / self.pixel_delta[1] + self.pixel_origin[1]) + 0.5))
+    r = (z - self.start) * self.delta
+    p = (int(r.real + 0.5), int(r.imag + 0.5))
     return p
 
   def p2c(self, p):
     """ returns the complex coord for pixel p """
-    z = complex((p[0] - self.pixel_origin[0]) * self.pixel_delta[0],
-                (p[1] - self.pixel_origin[1]) * self.pixel_delta[1])
+    z = complex(p[0] * self.delta.real, p[1] * self.delta.imag) + self.start
     return z
 
   def set_pixel(self, p, color):
     """ sets the pixel p to color """
-#    self.image.put(color, p)
     self.draw.point(p, color)
 
 #  def get_pixel(self, p):
@@ -94,5 +87,6 @@ class ComplexPlane:
     """ returns an tkinter.PhotoImage instance for
     """
     tki = ImageTk.PhotoImage(self.img)
+     # we need to keep a reference, otherwise gc would kick in by mistake
     self.__work_around = tki
     return tki
