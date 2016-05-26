@@ -62,15 +62,7 @@ def simple_shading(inside_color, start_color, stop_color, iter_max):
                     int(start_color[2] + iter_count * delta[2]))
     return f
 
-#DEFAULT_COLORING =  modulo_coloring(
-#    (0, 0, 0),
-#    (255, 0, 0),
-#    (0, 0, 255),
-#    (0, 255, 0))
-
-
-DEFAULT_COLORING = simple_shading(
-    (0, 0, 0),
+DEFAULT_COLORING =  modulo_coloring(
     (0, 0, 0),
     (255, 255, 255),
-    512)
+    (0, 0, 0))

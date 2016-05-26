@@ -15,6 +15,21 @@ import mandelbrot
 
 WINDOW_SIZE_MIN = (320, 240)
 
+VERSION = 'v0.0.0'
+TITLE = 'Chaos'
+AUTHOR = 'Lukas Singer'
+LICENSE = 'WTFPL (see COPYING or <http://www.wtfpl.net/>)'
+ABOUT_TEXT = """
+{title} - A Free  Fractal Generator
+written in Python
+{version}
+
+Copyright 2016, {author}
+{license}
+
+have fun :-)
+""".format(title=TITLE, version=VERSION, author=AUTHOR, license=LICENSE)
+
 class Chaos:
     def __init__(self):
         super().__init__()
@@ -24,7 +39,34 @@ class Chaos:
         self.complex_plane = None
 
         self.root = tk.Tk()
-        self.root.title('Chaos')
+        self.root.title('{} - {}'.format(TITLE, VERSION))
+
+        self.canvas_size_x = tk.IntVar()
+        self.canvas_size_x.set(200)
+        self.canvas_size_y = tk.IntVar()
+        self.canvas_size_y.set(200)
+
+        self.mandelbrot_bailout = tk.DoubleVar()
+        self.mandelbrot_bailout.set(2.0)
+        self.mandelbrot_max_iter = tk.IntVar()
+        self.mandelbrot_max_iter.set(512)
+        self.mandelbrot_coloring = tk.StringVar()
+        self.mandelbrot_coloring.set('Default')
+
+        self.mandelbrot_colorings = {
+            'Default': lambda: None,
+            'Modulo 2': lambda: mandelbrot.modulo_coloring((0, 0, 0),
+                                                           (255, 0, 0),
+                                                           (0, 0, 255)),
+            'Modulo 3': lambda: mandelbrot.modulo_coloring((0, 0, 0),
+                                                           (255, 0, 0),
+                                                           (0, 255, 0),
+                                                           (0, 0, 255)),
+            'Simple Shading': lambda: mandelbrot.simple_shading(
+                (0, 0, 0),
+                (16, 16, 16),
+                (255, 255, 255),
+                self.mandelbrot_max_iter.get())}
 
         self.canvas = tk.Canvas(self.root)
         self.canvas.bind('<Motion>', self.mouse_move)
@@ -60,18 +102,22 @@ class Chaos:
         self.filemenu.add_command(label='Close', command=self.root.quit)
         self.menubar.add_cascade(label='File', menu=self.filemenu)
 
-        self.fractalmenu = tk.Menu(self.menubar, tearoff=0)
-        self.fractalmenu.add_command(
-            label='Mandelbrot', command=self.mandelbrot)
-        self.menubar.add_cascade(label='Fractal', menu=self.fractalmenu)
+        self.rendermenu = tk.Menu(self.menubar, tearoff=0)
+        self.rendermenu.add_command(label='Mandelbrot',
+                                    command=self.mandelbrot)
+        self.menubar.add_cascade(label='Render', menu=self.rendermenu)
+
+        self.settingsmenu = tk.Menu(self.menubar, tearoff=0)
+        self.settingsmenu.add_command(label='Canvas',
+                                      command=self.canvas_settings)
+        self.settingsmenu.add_command(label='Mandelbrot',
+                                      command=self.mandelbrot_settings)
+        self.menubar.add_cascade(label='Settings', menu=self.settingsmenu)
 
         self.helpmenu = tk.Menu(self.menubar, tearoff=0)
-        self.helpmenu.add_command(label='About')
+        self.helpmenu.add_command(label='About', command=self.about_dialog)
         self.menubar.add_cascade(label='Help', menu=self.helpmenu)
 
-        # set the minimum window size like described here:
-        # http://stackoverflow.com/a/10452097/3403216
-        self.root.update()
         self.root.minsize(*WINDOW_SIZE_MIN)
 
         self.root.mainloop()
@@ -81,19 +127,24 @@ class Chaos:
         # TODO: implement the cursor manager found here:
         #       http://effbot.org/zone/tkinter-busy.htm
         self.root.config(cursor='spraycan')
-        self.root.update()
-        if not complex_coords:
-            complex_coords = (-2.2+1.4j, 1-1.4j)
         if self.img_id:
             self.canvas.delete(self.img_id)
             self.img_id = None
-        self.complex_plane = mandelbrot.mandelbrot(150, 150, *complex_coords)
+        self.root.update() # show cursor and clear canvas
+        if not complex_coords:
+            complex_coords = (-2.2+1.4j, 1-1.4j)
+        self.complex_plane = mandelbrot.mandelbrot(
+            self.canvas_size_x.get(),
+            self.canvas_size_y.get(),
+            *complex_coords,
+            self.mandelbrot_colorings[self.mandelbrot_coloring.get()](),
+            self.mandelbrot_bailout.get(),
+            self.mandelbrot_max_iter.get())
         self.img_id = self.canvas.create_image(
             0, 0,
             anchor=N+W,
             image=self.complex_plane.get_tk_image())
         self.root.config(cursor='')
-
 
     def mouse_down(self, event):
         if self.complex_plane:
@@ -118,6 +169,36 @@ class Chaos:
         else:
             self.coords_var.set('###')
 
+    def canvas_settings(self):
+        window = tk.Toplevel()
+        window.title('Canvas Settings')
+        tk.Label(window, text='Canvas size [W, H]:').grid(
+            row=0, column=0, sticky=N+E+S+W)
+        tk.Entry(window, textvariable=self.canvas_size_x).grid(
+            row=0, column=1, sticky=N+E+S+W)
+        tk.Entry(window, textvariable=self.canvas_size_y).grid(
+            row=0, column=2, stick=N+E+S+W)
+
+    def mandelbrot_settings(self):
+        window = tk.Toplevel()
+        window.title('Mandelbrot Settings')
+        tk.Label(window, text='Bailout:').grid(row=0, column=0, sticky=W)
+        tk.Entry(window, textvariable=self.mandelbrot_bailout).grid(
+            row=0, column=1)
+        tk.Label(window, text='Max. Iterations:').grid(
+            row=1, column=0, sticky=W)
+        tk.Entry(window, textvariable=self.mandelbrot_max_iter).grid(
+            row=1, column=1)
+        tk.Label(window, text='Coloring:').grid(row=2, column=0, sticky=W)
+        tk.OptionMenu(window, self.mandelbrot_coloring,
+                      *self.mandelbrot_colorings.keys()).grid(
+                          row=2, column=1, sticky=N+E+S+W)
+
+    def about_dialog(self):
+        window = tk.Toplevel()
+        window.title('About {title}'.format(TITLE))
+        tk.Label(window, text=ABOUT_TEXT).pack(padx=10, pady=5)
+        tk.Button(window, text='Ok', command=window.destroy).pack(pady=5)
 
 
 if __name__ == '__main__':
