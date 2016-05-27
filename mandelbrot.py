@@ -5,7 +5,7 @@ Author: Lukas Singer <lukas42singer (at) gmail (dot) com>
 Created: 2016/05/25
 Copyright: 2016, Lukas Singer
 License: WTFPL (see COPYING or <http://www.wtfpl.net/>)
-Description: This is the user interface of a fractal generator.
+Description: Mandelbrot set algorithm and coloring.
 """
 
 import time
@@ -17,6 +17,11 @@ def mandelbrot(width, height,
                coloring=None,
                bailout=2.0,
                itermax=512):
+    # i found this link. maybe its worth trying it to improve speed.
+    #   http://www.tutorialspoint.com/python/python_further_extensions.htm
+    # HINT: i would just write the code for a single pixel in c.
+    #   the function should/could take the complex number, bailout and iter_max
+    #   and return the number of iterations.
     t0 = time.clock()
     cp = complex_plane.ComplexPlane(width, height, start, end)
     if not coloring:

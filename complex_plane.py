@@ -4,8 +4,6 @@ from PIL import Image
 from PIL import ImageDraw
 from PIL import ImageTk
 
-#import tkinter as tk
-
 class ComplexPlane:
 
   class ComplexPlaneIterator:
@@ -52,14 +50,12 @@ class ComplexPlane:
 
   def c2p(self, z):
     """ returns the pixel coord for complex z """
-    r = (z - self.start) * self.delta
-    p = (int(r.real + 0.5), int(r.imag + 0.5))
-    return p
+    z = (z - self.start) * self.delta
+    return (int(z.real + 0.5), int(z.imag + 0.5))
 
   def p2c(self, p):
     """ returns the complex coord for pixel p """
-    z = complex(p[0] * self.delta.real, p[1] * self.delta.imag) + self.start
-    return z
+    return complex(p[0] * self.delta.real, p[1] * self.delta.imag) + self.start
 
   def set_pixel(self, p, color):
     """ sets the pixel p to color """
@@ -77,11 +73,8 @@ class ComplexPlane:
 #    """ returns the color of the pixel coresponding to complex z """
 #    return self.get_pixel(self.c2p(z))
 
-  def pixels_as_complex(self):
-    """ iterates over all pixels as complex numbers """
-    for x in range(self.image.width()):
-      for y in range(self.image.height()):
-        yield self.p2c((x, y))
+  def get_pil_image(self):
+    return self.img
 
   def get_tk_image(self):
     """ returns an tkinter.PhotoImage instance for
