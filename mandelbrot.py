@@ -16,7 +16,7 @@ def mandelbrot(width, height,
                start, end,
                coloring=None,
                bailout=2.0,
-               itermax=512):
+               itermax=256):
     # i found this link. maybe its worth trying it to improve speed.
     #   http://www.tutorialspoint.com/python/python_further_extensions.htm
     # HINT: i would just write the code for a single pixel in c.
@@ -44,6 +44,13 @@ def mandelbrot(width, height,
 ###############################################################################
 ###   COLORING   ##############################################################
 ###############################################################################
+
+# TODO: implement more coloring algorithms:
+#       here are some: http://www.eddaardvark.co.uk/python_patterns/schemes.html
+
+# TODO: refactor so that itermax is not needed as a parameter to the coloring
+#       functions. it is constant and can be passed to the factory function
+#       instead.
 
 def modulo_coloring(inside_color, *colors):
     l = len(colors)
