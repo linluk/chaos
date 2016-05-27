@@ -8,14 +8,14 @@ and julia sets.
 1. SETUP FOR DEVELOPMENT
 ------------------------
 
-1.1. Create a Virtual Environment with 'python3 -m venv venv' in the projects
-     root directory
+1.1. Create a Virtual Environment with 'python3 -m venv venv' in your
+     projects root directory.
 
-1.2. Activate the Virtual Environment with '. venv/bin/activate'
+1.2. Activate the Virtual Environment with '. venv/bin/activate'.
 
-1.3. Install the Requirements with 'pip install -r requirements.txt'
+1.3. Install the Requirements with 'pip install -r requirements.txt'.
 
-1.4. Have fun with fractals!
+1.4. Have fun with fractals! (run: 'python chaos.py')
 
 
 2. BUILD
@@ -30,6 +30,8 @@ and julia sets.
 
 2.4. run: 'pyinstaller --onefile --noconfirm chaos.spec' to build the
      binary. your generated executable is './dist/chaos/chaos'
+
+2.5. More info: https://pythonhosted.org/PyInstaller/usage.html
 
 
 3. PROBLEMS:
