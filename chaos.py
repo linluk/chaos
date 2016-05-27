@@ -13,6 +13,7 @@ import tkinter.filedialog
 from tkinter import N, E, S, W, TOP, BOTTOM, LEFT, RIGHT, HORIZONTAL, VERTICAL
 
 import mandelbrot
+import julia
 
 WINDOW_SIZE_MIN = (320, 240)
 
@@ -112,7 +113,9 @@ class Chaos:
 
         self.rendermenu = tk.Menu(self.menubar, tearoff=0)
         self.rendermenu.add_command(label='Mandelbrot',
-                                    command=self.mandelbrot)
+                                    command=self.render_mandelbrot)
+        self.rendermenu.add_command(label='Julia',
+                                    command=self.render_julia)
         self.menubar.add_cascade(label='Render', menu=self.rendermenu)
 
         self.settingsmenu = tk.Menu(self.menubar, tearoff=0)
@@ -131,7 +134,7 @@ class Chaos:
         self.root.mainloop()
 
 
-    def mandelbrot(self, complex_coords=None):
+    def render_mandelbrot(self, complex_coords=None):
         # TODO: implement the cursor manager found here:
         #       http://effbot.org/zone/tkinter-busy.htm
         self.root.config(cursor='spraycan')
@@ -157,6 +160,18 @@ class Chaos:
             anchor=N+W,
             image=self.complex_plane.get_tk_image())
         self.root.config(cursor='')
+
+    def render_julia(self, complex_coords=None):
+        complex_coords = (-2.2+1.4j, 1-1.4j)
+        self.complex_plane = julia.julia(
+            self.canvas_size_x.get(),
+            self.canvas_size_y.get(),
+            *complex_coords,
+            -0.12+0.75j)
+        self.img_id = self.canvas.create_image(
+            0, 0,
+            anchor=N+W,
+            image=self.complex_plane.get_tk_image())
 
     def expand_complex_coords_to_canvas_size(self, complex_coords):
         # this function does what it should, but it looks ugly.
@@ -202,7 +217,7 @@ class Chaos:
             self.canvas.delete(self.img_id)
             complex_coords = (self.mouse_down_position,
                               self.complex_plane.p2c(p))
-            self.mandelbrot(complex_coords)
+            self.render_mandelbrot(complex_coords)
             self.mouse_down_position = None
 
     def mouse_move(self, event):
