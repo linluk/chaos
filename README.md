@@ -23,13 +23,9 @@ and julia sets.
 
 2.1. Make sure that you have activated the Virtual Environment.
 
-2.2. run: 'pyinstaller --clean --noconfirm chaos.py' to cleanup the build
-     directories.
+2.2. run: 'pyinstaller --onefile chaos.py'
 
-2.3. run: 'pyinstaller --noconfirm chaos.py' to generate the *.spec file.
-
-2.4. run: 'pyinstaller --onefile --noconfirm chaos.spec' to build the
-     binary. your generated executable is './dist/chaos/chaos'
+2.3. now you should find the executable: './dist/chaos/chaos'
 
 2.5. More info: https://pythonhosted.org/PyInstaller/usage.html
 
