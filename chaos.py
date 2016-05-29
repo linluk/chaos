@@ -170,7 +170,7 @@ class Chaos:
         self.complex_plane = julia.julia(
             self.canvas_size_x.get(),
             self.canvas_size_y.get(),
-            *complex_coords,
+            complex_coords[0], complex_coords[1],
             -0.12+0.75j)
         self.img_id = self.canvas.create_image(
             0, 0,
@@ -265,7 +265,7 @@ class Chaos:
 
     def about_dialog(self):
         window = tk.Toplevel()
-        window.title('About {title}'.format(TITLE))
+        window.title('About {title}'.format(title=TITLE))
         tk.Label(window, text=ABOUT_TEXT).pack(padx=10, pady=5)
         tk.Button(window, text='Ok', command=window.destroy).pack(pady=5)
 
