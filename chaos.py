@@ -12,6 +12,7 @@ import tkinter as tk
 import tkinter.filedialog
 from tkinter import N, E, S, W, TOP, BOTTOM, LEFT, RIGHT, HORIZONTAL, VERTICAL
 
+import tkinter_ex as tke
 import mandelbrot
 import julia
 
@@ -31,6 +32,7 @@ Copyright 2016, {author}
 
 have fun :-)
 """.format(title=TITLE, version=VERSION, author=AUTHOR, license=LICENSE)
+
 
 ###############################################################################
 ###   THE CHAOS BEGINS   ######################################################
@@ -101,31 +103,31 @@ class Chaos:
         tk.Grid.rowconfigure(self.root, 0, weight=1)
         tk.Grid.columnconfigure(self.root, 0, weight=1)
 
-        self.menubar = tk.Menu(self.root)
+        self.menubar = tke.Menu(self.root)
         self.root.config(menu=self.menubar)
 
-        self.filemenu = tk.Menu(self.menubar, tearoff=0)
+        self.filemenu = tk.Menu(self.menubar)
         self.filemenu.add_command(label='Save', command=lambda:print('sorry'))
         self.filemenu.add_command(label='Eport', command=self.export_image)
 #        self.filemenu.add_separator()
         self.filemenu.add_command(label='Close', command=self.root.quit)
         self.menubar.add_cascade(label='File', menu=self.filemenu)
 
-        self.rendermenu = tk.Menu(self.menubar, tearoff=0)
+        self.rendermenu = tke.Menu(self.menubar)
         self.rendermenu.add_command(label='Mandelbrot',
                                     command=self.render_mandelbrot)
         self.rendermenu.add_command(label='Julia',
                                     command=self.render_julia)
         self.menubar.add_cascade(label='Render', menu=self.rendermenu)
 
-        self.settingsmenu = tk.Menu(self.menubar, tearoff=0)
+        self.settingsmenu = tke.Menu(self.menubar)
         self.settingsmenu.add_command(label='Canvas',
                                       command=self.canvas_settings)
         self.settingsmenu.add_command(label='Mandelbrot',
                                       command=self.mandelbrot_settings)
         self.menubar.add_cascade(label='Settings', menu=self.settingsmenu)
 
-        self.helpmenu = tk.Menu(self.menubar, tearoff=0)
+        self.helpmenu = tke.Menu(self.menubar)
         self.helpmenu.add_command(label='About', command=self.about_dialog)
         self.menubar.add_cascade(label='Help', menu=self.helpmenu)
 
@@ -235,9 +237,9 @@ class Chaos:
         window.title('Canvas Settings')
         tk.Label(window, text='Canvas size [W, H]:').grid(
             row=0, column=0, sticky=W)
-        tk.Entry(window, textvariable=self.canvas_size_x).grid(
+        tke.IntEntry(window, textvariable=self.canvas_size_x).grid(
             row=0, column=1, sticky=N+E+S+W)
-        tk.Entry(window, textvariable=self.canvas_size_y).grid(
+        tke.IntEntry(window, textvariable=self.canvas_size_y).grid(
             row=0, column=2, stick=N+E+S+W)
         tk.Label(window, text='Lock ratio:').grid(row=1, column=0, sticky=W)
         tk.Checkbutton(window, text='Enabled',
@@ -248,11 +250,11 @@ class Chaos:
         window = tk.Toplevel()
         window.title('Mandelbrot Settings')
         tk.Label(window, text='Bailout:').grid(row=0, column=0, sticky=W)
-        tk.Entry(window, textvariable=self.mandelbrot_bailout).grid(
+        tke.DoubleEntry(window, textvariable=self.mandelbrot_bailout).grid(
             row=0, column=1)
         tk.Label(window, text='Max. Iterations:').grid(
             row=1, column=0, sticky=W)
-        tk.Entry(window, textvariable=self.mandelbrot_max_iter).grid(
+        tke.IntEntry(window, textvariable=self.mandelbrot_max_iter).grid(
             row=1, column=1)
         tk.Label(window, text='Coloring:').grid(row=2, column=0, sticky=W)
         tk.OptionMenu(window, self.mandelbrot_coloring,

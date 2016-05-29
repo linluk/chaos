@@ -52,6 +52,9 @@ def mandelbrot(width, height,
 #       functions. it is constant and can be passed to the factory function
 #       instead.
 
+# TODO: consider this link when experimenting with colors:
+#       http://stackoverflow.com/questions/24852345/hsv-to-rgb-color-conversion
+
 def modulo_coloring(inside_color, *colors):
     l = len(colors)
     def f(complex_coord, complex_value, iter_max, iter_count):
