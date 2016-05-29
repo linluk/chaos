@@ -84,12 +84,14 @@ class Chaos:
         self.canvas.bind('<ButtonRelease-1>', self.mouse_up)
         self.canvas.grid(row=0, column=0, sticky=N+E+S+W)
 
-        self.scroll_x = tk.Scrollbar(self.canvas, orient=tk.HORIZONTAL)
-        self.scroll_y = tk.Scrollbar(self.canvas, orient=tk.VERTICAL)
+        self.scroll_x = tk.Scrollbar(self.root, orient=tk.HORIZONTAL)
+        self.scroll_y = tk.Scrollbar(self.root, orient=tk.VERTICAL)
         self.scroll_x.config(command=self.canvas.xview)
         self.scroll_y.config(command=self.canvas.yview)
-        self.scroll_x.pack(fill=tk.X, side=tk.BOTTOM)
-        self.scroll_y.pack(fill=tk.Y, side=tk.RIGHT)
+#        self.scroll_x.pack(fill=tk.X, side=tk.BOTTOM)
+        self.scroll_x.grid(row=1, column=0, sticky=E+W)
+#        self.scroll_y.pack(fill=tk.Y, side=tk.RIGHT)
+        self.scroll_y.grid(row=0, column=1, sticky=N+S)
 
         self.canvas.config(xscrollcommand=self.scroll_x.set)
         self.canvas.config(yscrollcommand=self.scroll_y.set)
@@ -98,7 +100,7 @@ class Chaos:
         self.coords_var = tk.StringVar()
         self.coords_var.set('###')
         self.coords_lbl = tk.Label(self.root, textvariable=self.coords_var)
-        self.coords_lbl.grid(row=1, column=0, sticky=S+E)
+        self.coords_lbl.grid(row=2, column=0, columnspan=2, sticky=S+E)
 
         tk.Grid.rowconfigure(self.root, 0, weight=1)
         tk.Grid.columnconfigure(self.root, 0, weight=1)

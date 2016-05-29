@@ -75,7 +75,6 @@ class ValidateEntry(tk.Entry):
                 del options[self.TEXT_VARIABLE]
         return super().config(**options)
 
-
     def _set_textvariable(self, textvariable):
         if self.variable and self.variable_observer:
             self.variable.trace_vdelete('w', self.variable_observer)
@@ -133,7 +132,6 @@ class ValidateEntry(tk.Entry):
         # override this method with your validation logic.
         # return True if it is valid or False when invalid.
         return True
-
 
 
 class IntEntry(ValidateEntry):
