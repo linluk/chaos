@@ -16,7 +16,6 @@ import tkinter_ex as tke
 import mandelbrot
 import julia
 
-WINDOW_SIZE_MIN = (320, 240)
 
 VERSION = 'v0.0.0'
 TITLE = 'Chaos'
@@ -33,6 +32,9 @@ Copyright 2016, {author}
 have fun :-)
 """.format(title=TITLE, version=VERSION, author=AUTHOR, license=LICENSE)
 
+WINDOW_SIZE_MIN = (320, 240)
+MANDELBROT_DEFAULT_COORDS = (-2.2+1.4j, 1-1.4j)
+JULIA_DEFAULT_COORDS = (-2+2j, 2-2j)
 
 ###############################################################################
 ###   THE CHAOS BEGINS   ######################################################
@@ -42,6 +44,7 @@ class Chaos:
     def __init__(self):
         super().__init__()
 
+        self.last_render_function = None
         self.img_id = None
         self.mouse_down_position = None
         self.complex_plane = None
@@ -138,20 +141,32 @@ class Chaos:
         self.root.mainloop()
 
 
-    def render_mandelbrot(self, complex_coords=None):
+    def before_render(self, complex_coords, default_complex_coords):
         # TODO: implement the cursor manager found here:
         #       http://effbot.org/zone/tkinter-busy.htm
         self.root.config(cursor='spraycan')
         if self.img_id:
             self.canvas.delete(self.img_id)
             self.img_id = None
-        self.root.update() # show cursor and clear canvas
+        self.root.update()
         if not complex_coords:
-            complex_coords = (-2.2+1.4j, 1-1.4j)
+            complex_coords = default_complex_coords
         if self.canvas_lock_ratio.get():
             complex_coords = self.expand_complex_coords_to_canvas_size(
                 complex_coords)
-        print(self.canvas_lock_ratio.get())
+        return complex_coords
+
+    def after_render(self, last_render_function):
+        self.img_id = self.canvas.create_image(
+            0, 0,
+            anchor=N+W,
+            image=self.complex_plane.get_tk_image())
+        self.root.config(cursor='')
+        self.last_render_function = last_render_function
+
+    def render_mandelbrot(self, complex_coords=None):
+        complex_coords = self.before_render(complex_coords,
+                                            MANDELBROT_DEFAULT_COORDS)
         self.complex_plane = mandelbrot.mandelbrot(
             self.canvas_size_x.get(),
             self.canvas_size_y.get(),
@@ -159,23 +174,17 @@ class Chaos:
             self.mandelbrot_colorings[self.mandelbrot_coloring.get()](),
             self.mandelbrot_bailout.get(),
             self.mandelbrot_max_iter.get())
-        self.img_id = self.canvas.create_image(
-            0, 0,
-            anchor=N+W,
-            image=self.complex_plane.get_tk_image())
-        self.root.config(cursor='')
+        self.after_render(self.render_mandelbrot)
 
     def render_julia(self, complex_coords=None):
-        complex_coords = (-2.2+1.4j, 1-1.4j)
+        complex_coords = self.before_render(complex_coords,
+                                            JULIA_DEFAULT_COORDS)
         self.complex_plane = julia.julia(
             self.canvas_size_x.get(),
             self.canvas_size_y.get(),
-            complex_coords[0], complex_coords[1],
+            *complex_coords,
             -0.12+0.75j)
-        self.img_id = self.canvas.create_image(
-            0, 0,
-            anchor=N+W,
-            image=self.complex_plane.get_tk_image())
+        self.after_render(self.render_julia)
 
     def expand_complex_coords_to_canvas_size(self, complex_coords):
         # this function does what it should, but it looks ugly.
@@ -212,7 +221,9 @@ class Chaos:
             self.mouse_down_position = self.complex_plane.p2c(p)
 
     def mouse_up(self, event):
-        if self.mouse_down_position and self.complex_plane:
+        if (self.mouse_down_position
+            and self.complex_plane
+            and self.last_render_function):
             self.root.config(cursor='')
             p = event.x, event.y
             if p == self.mouse_down_position:
@@ -221,7 +232,7 @@ class Chaos:
             self.canvas.delete(self.img_id)
             complex_coords = (self.mouse_down_position,
                               self.complex_plane.p2c(p))
-            self.render_mandelbrot(complex_coords)
+            self.last_render_function(complex_coords)
             self.mouse_down_position = None
 
     def mouse_move(self, event):
@@ -235,8 +246,10 @@ class Chaos:
             self.coords_var.set('###')
 
     def canvas_settings(self):
-        window = tk.Toplevel()
+        window = tke.Toplevel(self.root)
         window.title('Canvas Settings')
+#        window.transient(self.root)
+        window.resizable(width=False, height=False)
         tk.Label(window, text='Canvas size [W, H]:').grid(
             row=0, column=0, sticky=W)
         tke.IntEntry(window, textvariable=self.canvas_size_x).grid(
@@ -249,7 +262,7 @@ class Chaos:
                            row=1, column=1, sticky=N+S+W)
 
     def mandelbrot_settings(self):
-        window = tk.Toplevel()
+        window = tke.Toplevel(self.root)
         window.title('Mandelbrot Settings')
         tk.Label(window, text='Bailout:').grid(row=0, column=0, sticky=W)
         tke.DoubleEntry(window, textvariable=self.mandelbrot_bailout).grid(
@@ -264,7 +277,7 @@ class Chaos:
                           row=2, column=1, sticky=N+E+S+W)
 
     def about_dialog(self):
-        window = tk.Toplevel()
+        window = tke.Toplevel(self.root)
         window.title('About {title}'.format(title=TITLE))
         tk.Label(window, text=ABOUT_TEXT).pack(padx=10, pady=5)
         tk.Button(window, text='Ok', command=window.destroy).pack(pady=5)
