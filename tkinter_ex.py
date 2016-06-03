@@ -162,3 +162,13 @@ class DoubleEntry(ValidateEntry):
                 return False
         except ValueError:
             return False
+
+
+class Toplevel(tk.Toplevel):
+
+    def __init__(self, parent):
+        super().__init__()
+        # has no own task icon and should open in parents center
+        self.transient(parent)
+        # i dont want to resize it
+        self.resizable(width=False, height=False)
