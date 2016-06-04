@@ -66,6 +66,11 @@ class Chaos:
         self.mandelbrot_coloring = tk.StringVar()
         self.mandelbrot_coloring.set('Default')
 
+        self.julia_parameter_real = tk.DoubleVar()
+        self.julia_parameter_real.set(-0.12)
+        self.julia_parameter_imag = tk.DoubleVar()
+        self.julia_parameter_imag.set(0.75)
+
         self.mandelbrot_colorings = {
             'Default': lambda: None,
             'Modulo 2': lambda: mandelbrot.modulo_coloring((0, 0, 0),
@@ -130,6 +135,8 @@ class Chaos:
                                       command=self.canvas_settings)
         self.settingsmenu.add_command(label='Mandelbrot',
                                       command=self.mandelbrot_settings)
+        self.settingsmenu.add_command(label='Julia',
+                                      command=self.julia_settings)
         self.menubar.add_cascade(label='Settings', menu=self.settingsmenu)
 
         self.helpmenu = tke.Menu(self.menubar)
@@ -179,11 +186,14 @@ class Chaos:
     def render_julia(self, complex_coords=None):
         complex_coords = self.before_render(complex_coords,
                                             JULIA_DEFAULT_COORDS)
+        julia_parameter = self.julia_parameter_real.get() + (
+            self.julia_parameter_imag.get() * 1j)
         self.complex_plane = julia.julia(
             self.canvas_size_x.get(),
             self.canvas_size_y.get(),
             *complex_coords,
-            -0.12+0.75j)
+            julia_parameter)
+#            -0.12+0.75j)
         self.after_render(self.render_julia)
 
     def expand_complex_coords_to_canvas_size(self, complex_coords):
@@ -275,6 +285,17 @@ class Chaos:
         tk.OptionMenu(window, self.mandelbrot_coloring,
                       *self.mandelbrot_colorings.keys()).grid(
                           row=2, column=1, sticky=N+E+S+W)
+
+    def julia_settings(self):
+        window = tke.Toplevel(self.root)
+        window.title('Julia Settings')
+        tk.Label(window, text='Parameter:').grid(row=0, column=0, sticky=W)
+        tke.DoubleEntry(window, textvariable=self.julia_parameter_real).grid(
+            row=0, column=1)
+        tk.Label(window, text=' + ').grid(row=0, column=2)
+        tke.DoubleEntry(window, textvariable=self.julia_parameter_imag).grid(
+            row=0, column=3)
+        tk.Label(window, text=' i').grid(row=0, column=4)
 
     def about_dialog(self):
         window = tke.Toplevel(self.root)
