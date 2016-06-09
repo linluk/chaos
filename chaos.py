@@ -66,11 +66,6 @@ class Chaos:
         self.mandelbrot_coloring = tk.StringVar()
         self.mandelbrot_coloring.set('Default')
 
-        self.julia_parameter_real = tk.DoubleVar()
-        self.julia_parameter_real.set(-0.12)
-        self.julia_parameter_imag = tk.DoubleVar()
-        self.julia_parameter_imag.set(0.75)
-
         self.mandelbrot_colorings = {
             'Default': lambda: None,
             'Modulo 2': lambda: mandelbrot.modulo_coloring((0, 0, 0),
@@ -81,10 +76,26 @@ class Chaos:
                                                            (0, 255, 0),
                                                            (0, 0, 255)),
             'Simple Shading': lambda: mandelbrot.simple_shading(
-                (0, 0, 0),
-                (16, 16, 16),
+#                (0, 0, 0),
+#                (16, 16, 16),
+#                (255, 255, 255),
                 (255, 255, 255),
+                (255, 255, 255),
+                (0, 0, 0),
                 self.mandelbrot_max_iter.get())}
+
+        self.julia_parameter_real = tk.DoubleVar()
+        self.julia_parameter_real.set(-0.12)
+        self.julia_parameter_imag = tk.DoubleVar()
+        self.julia_parameter_imag.set(0.75)
+        self.julia_bailout = tk.DoubleVar()
+        self.julia_bailout.set(2.0)
+        self.julia_max_iter = tk.IntVar()
+        self.julia_max_iter.set(512)
+        self.julia_coloring = tk.StringVar()
+        self.julia_coloring.set('Default')
+
+        self.julia_colorings = self.mandelbrot_colorings.copy()
 
         self.canvas = tk.Canvas(self.root)
         self.canvas.bind('<Motion>', self.mouse_move)
@@ -103,7 +114,6 @@ class Chaos:
 
         self.canvas.config(xscrollcommand=self.scroll_x.set)
         self.canvas.config(yscrollcommand=self.scroll_y.set)
-        self.canvas.config(scrollregion=(0, 0, 640, 480))
 
         self.coords_var = tk.StringVar()
         self.coords_var.set('###')
@@ -168,6 +178,10 @@ class Chaos:
             0, 0,
             anchor=N+W,
             image=self.complex_plane.get_tk_image())
+        self.canvas.config(
+            scrollregion=(0, 0,
+                          self.canvas_size_x.get(),
+                          self.canvas_size_y.get()))
         self.root.config(cursor='')
         self.last_render_function = last_render_function
 
@@ -192,7 +206,10 @@ class Chaos:
             self.canvas_size_x.get(),
             self.canvas_size_y.get(),
             *complex_coords,
-            julia_parameter)
+            julia_parameter,
+            self.julia_colorings[self.julia_coloring.get()](),
+            self.julia_bailout.get(),
+            self.julia_max_iter.get())
 #            -0.12+0.75j)
         self.after_render(self.render_julia)
 
@@ -296,6 +313,18 @@ class Chaos:
         tke.DoubleEntry(window, textvariable=self.julia_parameter_imag).grid(
             row=0, column=3)
         tk.Label(window, text=' i').grid(row=0, column=4)
+        tk.Label(window, text='Bailout:').grid(row=1, column=0, sticky=W)
+        tke.DoubleEntry(window, textvariable=self.julia_bailout).grid(
+            row=1, column=1)
+        tk.Label(window, text='Max. Iterations:').grid(
+            row=2, column=0, sticky=W)
+        tke.IntEntry(window, textvariable=self.julia_max_iter).grid(
+            row=2, column=1)
+        tk.Label(window, text='Coloring:').grid(row=3, column=0, sticky=W)
+        tk.OptionMenu(window, self.julia_coloring,
+                      *self.julia_colorings.keys()).grid(
+                          row=3, column=1, sticky=N+E+S+W)
+
 
     def about_dialog(self):
         window = tke.Toplevel(self.root)
