@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 """
-Filename: config.py
+Filename: settings.py
 Author: Lukas Singer <lukas42singer (at) gmail (dot) com>
 Created: 2016/06/08
 Copyright: 2016, Lukas Singer

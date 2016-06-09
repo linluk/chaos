@@ -15,7 +15,7 @@ from tkinter import N, E, S, W, TOP, BOTTOM, LEFT, RIGHT, HORIZONTAL, VERTICAL
 import tkinter_ex as tke
 import mandelbrot
 import julia
-import config as settings
+import settings
 
 VERSION = 'v0.0.0'
 TITLE = 'Chaos'
