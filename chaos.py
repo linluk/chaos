@@ -16,6 +16,7 @@ import tkinter_ex as tke
 import mandelbrot
 import julia
 import settings
+import coloring
 
 VERSION = 'v0.0.0'
 TITLE = 'Chaos'
@@ -53,26 +54,7 @@ class Chaos:
         self.root.title('{} - {}'.format(TITLE, VERSION))
 
         settings.initialize()
-
-        self.mandelbrot_colorings = {
-            'Default': lambda: None,
-            'Modulo 2': lambda: mandelbrot.modulo_coloring((0, 0, 0),
-                                                           (255, 0, 0),
-                                                           (0, 0, 255)),
-            'Modulo 3': lambda: mandelbrot.modulo_coloring((0, 0, 0),
-                                                           (255, 0, 0),
-                                                           (0, 255, 0),
-                                                           (0, 0, 255)),
-            'Simple Shading': lambda: mandelbrot.simple_shading(
-#                (0, 0, 0),
-#                (16, 16, 16),
-#                (255, 255, 255),
-                (255, 255, 255),
-                (255, 255, 255),
-                (0, 0, 0),
-                self.mandelbrot_max_iter.get())}
-
-        self.julia_colorings = self.mandelbrot_colorings.copy()
+        coloring.initialize()
 
         self.canvas = tk.Canvas(self.root)
         self.canvas.bind('<Motion>', self.mouse_move)
@@ -163,13 +145,14 @@ class Chaos:
     def render_mandelbrot(self, complex_coords=None):
         complex_coords = self.before_render(complex_coords,
                                             MANDELBROT_DEFAULT_COORDS)
+        max_iter = settings.mandelbrot.max_iter
         self.complex_plane = mandelbrot.mandelbrot(
             settings.canvas.size_x,
             settings.canvas.size_y,
             *complex_coords,
-            self.mandelbrot_colorings[settings.mandelbrot.coloring](),
+            coloring.colorings[settings.mandelbrot.coloring](max_iter),
             settings.mandelbrot.bailout,
-            settings.mandelbrot.max_iter)
+            max_iter)
         self.after_render(self.render_mandelbrot)
 
     def render_julia(self, complex_coords=None):
@@ -177,14 +160,15 @@ class Chaos:
                                             JULIA_DEFAULT_COORDS)
         julia_parameter = settings.julia.parameter_real + (
             settings.julia.parameter_imag * 1j)
+        max_iter = settings.julia.max_iter
         self.complex_plane = julia.julia(
             settings.canvas.size_x,
             settings.canvas.size_y,
             *complex_coords,
             julia_parameter,
-            self.julia_colorings[settings.julia.coloring](),
+            coloring.colorings[settings.julia.coloring](max_iter),
             settings.julia.bailout,
-            settings.julia.max_iter)
+            max_iter)
 #            -0.12+0.75j)
         self.after_render(self.render_julia)
 
@@ -281,7 +265,7 @@ class Chaos:
                 row=1, column=1)
         tk.Label(window, text='Coloring:').grid(row=2, column=0, sticky=W)
         tk.OptionMenu(window, settings.mandelbrot.get_coloring_var(),
-                      *self.mandelbrot_colorings.keys()).grid(
+                      *coloring.colorings.keys()).grid(
                           row=2, column=1, sticky=N+E+S+W)
 
     def julia_settings(self):
@@ -311,7 +295,7 @@ class Chaos:
                 row=2, column=1)
         tk.Label(window, text='Coloring:').grid(row=3, column=0, sticky=W)
         tk.OptionMenu(window, settings.julia.get_coloring_var(),
-                      *self.julia_colorings.keys()).grid(
+                      *coloring.colorings.keys()).grid(
                           row=3, column=1, sticky=N+E+S+W)
 
 

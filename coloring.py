@@ -47,16 +47,16 @@ def simple_shading(inside_color, start_color, stop_color, iter_max):
 def initialize():
     global colorings
     colorings = collections.OrderedDict([
-        ('Default', lambda: None),
-        ('Modulo 2': lambda: simple_modulo((0, 0, 0),
+        ('Default', lambda *_: None),
+        ('Modulo 2', lambda *_: simple_modulo((0, 0, 0),
                                            (255, 0, 0),
                                            (0, 0, 255))),
-        ('Modulo 3': lambda: simple_modulo((0, 0, 0),
+        ('Modulo 3', lambda *_: simple_modulo((0, 0, 0),
                                            (255, 0, 0),
                                            (0, 255, 0),
                                            (0, 0, 255))),
-        ('Simple Shading': lambda: simple_shading(
+        ('Simple Shading', lambda max_iter, *_: simple_shading(
             (255, 255, 255),
             (255, 255, 255),
             (0, 0, 0),
-            self.mandelbrot_max_iter.get()))])
+            max_iter))])
