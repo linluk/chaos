@@ -172,3 +172,31 @@ class Toplevel(tk.Toplevel):
         self.transient(parent)
         # i dont want to resize it
         self.resizable(width=False, height=False)
+
+
+class StringVar(tk.StringVar):
+
+    def __init__(self, default=''):
+        super().__init__()
+        self.set(default)
+
+
+class IntVar(tk.IntVar):
+
+    def __init__(self, default=0):
+        super().__init__()
+        self.set(default)
+
+
+class DoubleVar(tk.DoubleVar):
+
+    def __init__(self, default=0.0):
+        super().__init__()
+        self.set(default)
+
+
+class BooleanVar(tk.BooleanVar):
+
+    def __init__(self, default=False):
+        super().__init__()
+        self.set(default)
