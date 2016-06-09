@@ -15,7 +15,7 @@ from tkinter import N, E, S, W, TOP, BOTTOM, LEFT, RIGHT, HORIZONTAL, VERTICAL
 import tkinter_ex as tke
 import mandelbrot
 import julia
-
+import config as settings
 
 VERSION = 'v0.0.0'
 TITLE = 'Chaos'
@@ -52,19 +52,7 @@ class Chaos:
         self.root = tk.Tk()
         self.root.title('{} - {}'.format(TITLE, VERSION))
 
-        self.canvas_size_x = tk.IntVar()
-        self.canvas_size_x.set(200)
-        self.canvas_size_y = tk.IntVar()
-        self.canvas_size_y.set(200)
-        self.canvas_lock_ratio = tk.BooleanVar()
-        self.canvas_lock_ratio.set(True)
-
-        self.mandelbrot_bailout = tk.DoubleVar()
-        self.mandelbrot_bailout.set(2.0)
-        self.mandelbrot_max_iter = tk.IntVar()
-        self.mandelbrot_max_iter.set(512)
-        self.mandelbrot_coloring = tk.StringVar()
-        self.mandelbrot_coloring.set('Default')
+        settings.initialize()
 
         self.mandelbrot_colorings = {
             'Default': lambda: None,
@@ -84,17 +72,6 @@ class Chaos:
                 (0, 0, 0),
                 self.mandelbrot_max_iter.get())}
 
-        self.julia_parameter_real = tk.DoubleVar()
-        self.julia_parameter_real.set(-0.12)
-        self.julia_parameter_imag = tk.DoubleVar()
-        self.julia_parameter_imag.set(0.75)
-        self.julia_bailout = tk.DoubleVar()
-        self.julia_bailout.set(2.0)
-        self.julia_max_iter = tk.IntVar()
-        self.julia_max_iter.set(512)
-        self.julia_coloring = tk.StringVar()
-        self.julia_coloring.set('Default')
-
         self.julia_colorings = self.mandelbrot_colorings.copy()
 
         self.canvas = tk.Canvas(self.root)
@@ -107,9 +84,7 @@ class Chaos:
         self.scroll_y = tk.Scrollbar(self.root, orient=tk.VERTICAL)
         self.scroll_x.config(command=self.canvas.xview)
         self.scroll_y.config(command=self.canvas.yview)
-#        self.scroll_x.pack(fill=tk.X, side=tk.BOTTOM)
         self.scroll_x.grid(row=1, column=0, sticky=E+W)
-#        self.scroll_y.pack(fill=tk.Y, side=tk.RIGHT)
         self.scroll_y.grid(row=0, column=1, sticky=N+S)
 
         self.canvas.config(xscrollcommand=self.scroll_x.set)
@@ -168,7 +143,7 @@ class Chaos:
         self.root.update()
         if not complex_coords:
             complex_coords = default_complex_coords
-        if self.canvas_lock_ratio.get():
+        if settings.canvas.lock_ratio:
             complex_coords = self.expand_complex_coords_to_canvas_size(
                 complex_coords)
         return complex_coords
@@ -180,8 +155,8 @@ class Chaos:
             image=self.complex_plane.get_tk_image())
         self.canvas.config(
             scrollregion=(0, 0,
-                          self.canvas_size_x.get(),
-                          self.canvas_size_y.get()))
+                          settings.canvas.size_x,
+                          settings.canvas.size_y))
         self.root.config(cursor='')
         self.last_render_function = last_render_function
 
@@ -189,27 +164,27 @@ class Chaos:
         complex_coords = self.before_render(complex_coords,
                                             MANDELBROT_DEFAULT_COORDS)
         self.complex_plane = mandelbrot.mandelbrot(
-            self.canvas_size_x.get(),
-            self.canvas_size_y.get(),
+            settings.canvas.size_x,
+            settings.canvas.size_y,
             *complex_coords,
-            self.mandelbrot_colorings[self.mandelbrot_coloring.get()](),
-            self.mandelbrot_bailout.get(),
-            self.mandelbrot_max_iter.get())
+            self.mandelbrot_colorings[settings.mandelbrot.coloring](),
+            settings.mandelbrot.bailout,
+            settings.mandelbrot.max_iter)
         self.after_render(self.render_mandelbrot)
 
     def render_julia(self, complex_coords=None):
         complex_coords = self.before_render(complex_coords,
                                             JULIA_DEFAULT_COORDS)
-        julia_parameter = self.julia_parameter_real.get() + (
-            self.julia_parameter_imag.get() * 1j)
+        julia_parameter = settings.julia.parameter_real + (
+            settings.julia.parameter_imag * 1j)
         self.complex_plane = julia.julia(
-            self.canvas_size_x.get(),
-            self.canvas_size_y.get(),
+            settings.canvas.size_x,
+            settings.canvas.size_y,
             *complex_coords,
             julia_parameter,
-            self.julia_colorings[self.julia_coloring.get()](),
-            self.julia_bailout.get(),
-            self.julia_max_iter.get())
+            self.julia_colorings[settings.julia.coloring](),
+            settings.julia.bailout,
+            settings.julia.max_iter)
 #            -0.12+0.75j)
         self.after_render(self.render_julia)
 
@@ -217,7 +192,7 @@ class Chaos:
         # this function does what it should, but it looks ugly.
         # TODO: make it better.
         z1, z2 = complex_coords
-        canvas_w, canvas_h = self.canvas_size_x.get(), self.canvas_size_y.get()
+        canvas_w, canvas_h = settings.canvas.size_x, settings.canvas.size_y
         complex_w, complex_h = abs(z2.real - z1.real), abs(z2.imag - z1.imag)
         pixel_delta_x = complex_w / canvas_w
         pixel_delta_y = complex_h / canvas_h
@@ -279,27 +254,33 @@ class Chaos:
         window.resizable(width=False, height=False)
         tk.Label(window, text='Canvas size [W, H]:').grid(
             row=0, column=0, sticky=W)
-        tke.IntEntry(window, textvariable=self.canvas_size_x).grid(
-            row=0, column=1, sticky=N+E+S+W)
-        tke.IntEntry(window, textvariable=self.canvas_size_y).grid(
-            row=0, column=2, stick=N+E+S+W)
+        tke.IntEntry(window,
+                     textvariable=settings.canvas.get_size_x_var()).grid(
+                         row=0, column=1, sticky=N+E+S+W)
+        tke.IntEntry(window,
+                     textvariable=settings.canvas.get_size_y_var()).grid(
+                         row=0, column=2, stick=N+E+S+W)
         tk.Label(window, text='Lock ratio:').grid(row=1, column=0, sticky=W)
         tk.Checkbutton(window, text='Enabled',
-                       variable=self.canvas_lock_ratio).grid(
+                       variable=settings.canvas.get_lock_ratio_var()).grid(
                            row=1, column=1, sticky=N+S+W)
 
     def mandelbrot_settings(self):
         window = tke.Toplevel(self.root)
         window.title('Mandelbrot Settings')
         tk.Label(window, text='Bailout:').grid(row=0, column=0, sticky=W)
-        tke.DoubleEntry(window, textvariable=self.mandelbrot_bailout).grid(
-            row=0, column=1)
+        tke.DoubleEntry(
+            window,
+            textvariable=settings.mandelbrot.get_bailout_var()).grid(
+                row=0, column=1)
         tk.Label(window, text='Max. Iterations:').grid(
             row=1, column=0, sticky=W)
-        tke.IntEntry(window, textvariable=self.mandelbrot_max_iter).grid(
-            row=1, column=1)
+        tke.IntEntry(
+            window,
+            textvariable=settings.mandelbrot.get_max_iter_var()).grid(
+                row=1, column=1)
         tk.Label(window, text='Coloring:').grid(row=2, column=0, sticky=W)
-        tk.OptionMenu(window, self.mandelbrot_coloring,
+        tk.OptionMenu(window, settings.mandelbrot.get_coloring_var(),
                       *self.mandelbrot_colorings.keys()).grid(
                           row=2, column=1, sticky=N+E+S+W)
 
@@ -307,21 +288,29 @@ class Chaos:
         window = tke.Toplevel(self.root)
         window.title('Julia Settings')
         tk.Label(window, text='Parameter:').grid(row=0, column=0, sticky=W)
-        tke.DoubleEntry(window, textvariable=self.julia_parameter_real).grid(
-            row=0, column=1)
+        tke.DoubleEntry(
+            window,
+            textvariable=settings.julia.get_parameter_real_var()).grid(
+                row=0, column=1)
         tk.Label(window, text=' + ').grid(row=0, column=2)
-        tke.DoubleEntry(window, textvariable=self.julia_parameter_imag).grid(
-            row=0, column=3)
+        tke.DoubleEntry(
+            window,
+            textvariable=settings.julia.get_parameter_imag_var()).grid(
+                row=0, column=3)
         tk.Label(window, text=' i').grid(row=0, column=4)
         tk.Label(window, text='Bailout:').grid(row=1, column=0, sticky=W)
-        tke.DoubleEntry(window, textvariable=self.julia_bailout).grid(
-            row=1, column=1)
+        tke.DoubleEntry(
+            window,
+            textvariable=settings.julia.get_bailout_var()).grid(
+                row=1, column=1)
         tk.Label(window, text='Max. Iterations:').grid(
             row=2, column=0, sticky=W)
-        tke.IntEntry(window, textvariable=self.julia_max_iter).grid(
-            row=2, column=1)
+        tke.IntEntry(
+            window,
+            textvariable=settings.julia.get_max_iter_var()).grid(
+                row=2, column=1)
         tk.Label(window, text='Coloring:').grid(row=3, column=0, sticky=W)
-        tk.OptionMenu(window, self.julia_coloring,
+        tk.OptionMenu(window, settings.julia.get_coloring_var(),
                       *self.julia_colorings.keys()).grid(
                           row=3, column=1, sticky=N+E+S+W)
 
