@@ -16,6 +16,7 @@ import tkinter_ex as tke
 canvas = None
 mandelbrot = None
 julia = None
+coloring = None
 
 
 def _add_var_getter_property(cls, attr):
@@ -120,13 +121,43 @@ class _Julia(SettingsBase):
         }
 
 
+@settings_class
+class _Coloring(SettingsBase):
+
+    _SETTINGS = {
+        'modulo2_i_r': 0,
+        'modulo2_i_g': 0,
+        'modulo2_i_b': 0,
+        'modulo2_0_r': 255,
+        'modulo2_0_g': 0,
+        'modulo2_0_b': 0,
+        'modulo2_1_r': 0,
+        'modulo2_1_g': 0,
+        'modulo2_1_b': 255,
+        'modulo3_i_r': 0,
+        'modulo3_i_g': 0,
+        'modulo3_i_b': 0,
+        'modulo3_0_r': 255,
+        'modulo3_0_g': 0,
+        'modulo3_0_b': 0,
+        'modulo3_1_r': 0,
+        'modulo3_1_g': 255,
+        'modulo3_1_b': 0,
+        'modulo3_2_r': 0,
+        'modulo3_2_g': 0,
+        'modulo3_2_b': 255
+        }
+
+
 def initialize():
     global canvas
     global mandelbrot
     global julia
+    global coloring
     canvas = _Canvas()
     mandelbrot = _Mandelbrot()
     julia = _Julia()
+    coloring = _Coloring()
 
 
 if __name__ == '__main__':
