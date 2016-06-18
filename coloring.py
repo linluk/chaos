@@ -9,6 +9,9 @@ Description: This module contains the coloring functions.
 """
 
 import collections
+
+import settings
+
 # TODO: implement more coloring algorithms:
 #       here are some: http://www.eddaardvark.co.uk/python_patterns/schemes.html
 
@@ -46,15 +49,18 @@ def simple_shading(inside_color, start_color, stop_color, iter_max):
 
 def initialize():
     global colorings
+    c = settings.coloring
     colorings = collections.OrderedDict([
         ('Default', lambda *_: None),
-        ('Modulo 2', lambda *_: simple_modulo((0, 0, 0),
-                                           (255, 0, 0),
-                                           (0, 0, 255))),
-        ('Modulo 3', lambda *_: simple_modulo((0, 0, 0),
-                                           (255, 0, 0),
-                                           (0, 255, 0),
-                                           (0, 0, 255))),
+        ('Modulo 2', lambda *_: simple_modulo(
+            (c.modulo2_i_r, c.modulo2_i_g, c.modulo2_i_b),
+            (c.modulo2_0_r, c.modulo2_0_g, c.modulo2_0_b),
+            (c.modulo2_1_r, c.modulo2_1_g, c.modulo2_1_b))),
+        ('Modulo 3', lambda *_: simple_modulo(
+            (c.modulo3_i_r, c.modulo3_i_g, c.modulo3_i_b),
+            (c.modulo3_0_r, c.modulo3_0_g, c.modulo3_0_b),
+            (c.modulo3_1_r, c.modulo3_1_g, c.modulo3_1_b),
+            (c.modulo3_2_r, c.modulo3_2_g, c.modulo3_2_b))),
         ('Simple Shading', lambda max_iter, *_: simple_shading(
             (255, 255, 255),
             (255, 255, 255),
