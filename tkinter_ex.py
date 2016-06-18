@@ -138,7 +138,7 @@ class IntEntry(ValidateEntry):
 
     def validate(self, value):
         try:
-            if value:
+            if value is not None:
                 v = int(value)
                 if not (self.check_min(v) and self.check_max(v)):
                     return False
@@ -153,7 +153,7 @@ class DoubleEntry(ValidateEntry):
 
     def validate(self, value):
         try:
-            if value:
+            if value is not None:
                 v = float(value)
                 if not (self.check_min(v) and self.check_max(v)):
                     return False
