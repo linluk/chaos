@@ -42,7 +42,7 @@ JULIA_DEFAULT_COORDS = (-2+2j, 2-2j)
 ###############################################################################
 
 class Chaos:
-    def __init__(self):
+    def __init__(self, parent):
         super().__init__()
 
         self.last_render_function = None
@@ -50,20 +50,20 @@ class Chaos:
         self.mouse_down_position = None
         self.complex_plane = None
 
-        self.root = tk.Tk()
-        self.root.title('{} - {}'.format(TITLE, VERSION))
+        self.parent = parent
+#        self.root.title('{} - {}'.format(TITLE, VERSION))
 
         settings.initialize()
         coloring.initialize()
 
-        self.canvas = tk.Canvas(self.root)
+        self.canvas = tk.Canvas(self.parent)
         self.canvas.bind('<Motion>', self.mouse_move)
         self.canvas.bind('<ButtonPress-1>', self.mouse_down)
         self.canvas.bind('<ButtonRelease-1>', self.mouse_up)
         self.canvas.grid(row=0, column=0, sticky=N+E+S+W)
 
-        self.scroll_x = tk.Scrollbar(self.root, orient=tk.HORIZONTAL)
-        self.scroll_y = tk.Scrollbar(self.root, orient=tk.VERTICAL)
+        self.scroll_x = tk.Scrollbar(self.parent, orient=tk.HORIZONTAL)
+        self.scroll_y = tk.Scrollbar(self.parent, orient=tk.VERTICAL)
         self.scroll_x.config(command=self.canvas.xview)
         self.scroll_y.config(command=self.canvas.yview)
         self.scroll_x.grid(row=1, column=0, sticky=E+W)
@@ -74,20 +74,20 @@ class Chaos:
 
         self.coords_var = tk.StringVar()
         self.coords_var.set('###')
-        self.coords_lbl = tk.Label(self.root, textvariable=self.coords_var)
+        self.coords_lbl = tk.Label(self.parent, textvariable=self.coords_var)
         self.coords_lbl.grid(row=2, column=0, columnspan=2, sticky=S+E)
 
-        tk.Grid.rowconfigure(self.root, 0, weight=1)
-        tk.Grid.columnconfigure(self.root, 0, weight=1)
+        tk.Grid.rowconfigure(self.parent, 0, weight=1)
+        tk.Grid.columnconfigure(self.parent, 0, weight=1)
 
-        self.menubar = tke.Menu(self.root)
-        self.root.config(menu=self.menubar)
+        self.menubar = tke.Menu(self.parent)
+        self.parent.config(menu=self.menubar)
 
         self.filemenu = tk.Menu(self.menubar)
         self.filemenu.add_command(label='Save', command=lambda:print('sorry'))
         self.filemenu.add_command(label='Eport', command=self.export_image)
 #        self.filemenu.add_separator()
-        self.filemenu.add_command(label='Close', command=self.root.quit)
+        self.filemenu.add_command(label='Close', command=self.parent.quit)
         self.menubar.add_cascade(label='File', menu=self.filemenu)
 
         self.rendermenu = tke.Menu(self.menubar)
@@ -104,25 +104,27 @@ class Chaos:
                                       command=self.mandelbrot_settings)
         self.settingsmenu.add_command(label='Julia',
                                       command=self.julia_settings)
+        self.settingsmenu.add_command(label='Coloring',
+                                      command=self.coloring_settings)
         self.menubar.add_cascade(label='Settings', menu=self.settingsmenu)
 
         self.helpmenu = tke.Menu(self.menubar)
         self.helpmenu.add_command(label='About', command=self.about_dialog)
         self.menubar.add_cascade(label='Help', menu=self.helpmenu)
 
-        self.root.minsize(*WINDOW_SIZE_MIN)
+        self.parent.minsize(*WINDOW_SIZE_MIN)
 
-        self.root.mainloop()
+        self.parent.mainloop()
 
 
     def before_render(self, complex_coords, default_complex_coords):
         # TODO: implement the cursor manager found here:
         #       http://effbot.org/zone/tkinter-busy.htm
-        self.root.config(cursor='spraycan')
+        self.parent.config(cursor='spraycan')
         if self.img_id:
             self.canvas.delete(self.img_id)
             self.img_id = None
-        self.root.update()
+        self.parent.update()
         if not complex_coords:
             complex_coords = default_complex_coords
         if settings.canvas.lock_ratio:
@@ -139,7 +141,7 @@ class Chaos:
             scrollregion=(0, 0,
                           settings.canvas.size_x,
                           settings.canvas.size_y))
-        self.root.config(cursor='')
+        self.parent.config(cursor='')
         self.last_render_function = last_render_function
 
     def render_mandelbrot(self, complex_coords=None):
@@ -202,7 +204,7 @@ class Chaos:
 
     def mouse_down(self, event):
         if self.complex_plane:
-            self.root.config(cursor='cross')
+            self.parent.config(cursor='cross')
             p = (event.x, event.y)
             self.mouse_down_position = self.complex_plane.p2c(p)
 
@@ -210,7 +212,7 @@ class Chaos:
         if (self.mouse_down_position
             and self.complex_plane
             and self.last_render_function):
-            self.root.config(cursor='')
+            self.parent.config(cursor='')
             p = event.x, event.y
             if p == self.mouse_down_position:
                 # we have to do this because of div by zero risk
@@ -232,9 +234,9 @@ class Chaos:
             self.coords_var.set('###')
 
     def canvas_settings(self):
-        window = tke.Toplevel(self.root)
+        window = tke.Toplevel(self.parent)
         window.title('Canvas Settings')
-#        window.transient(self.root)
+#        window.transient(self.parent)
         window.resizable(width=False, height=False)
         tk.Label(window, text='Canvas size [W, H]:').grid(
             row=0, column=0, sticky=W)
@@ -250,7 +252,7 @@ class Chaos:
                            row=1, column=1, sticky=N+S+W)
 
     def mandelbrot_settings(self):
-        window = tke.Toplevel(self.root)
+        window = tke.Toplevel(self.parent)
         window.title('Mandelbrot Settings')
         tk.Label(window, text='Bailout:').grid(row=0, column=0, sticky=W)
         tke.DoubleEntry(
@@ -269,7 +271,7 @@ class Chaos:
                           row=2, column=1, sticky=N+E+S+W)
 
     def julia_settings(self):
-        window = tke.Toplevel(self.root)
+        window = tke.Toplevel(self.parent)
         window.title('Julia Settings')
         tk.Label(window, text='Parameter:').grid(row=0, column=0, sticky=W)
         tke.DoubleEntry(
@@ -299,12 +301,39 @@ class Chaos:
                           row=3, column=1, sticky=N+E+S+W)
 
 
+    def coloring_settings(self):
+        def _rgb_entries(parent, tvr, tvg, tvb, row, start_column):
+            print(tvr.get())
+            print(tvg.get())
+            print(tvb.get())
+            tke.IntEntry(
+                parent,
+                textvariable=tvr).grid(row=row, column=start_column + 0)
+            tke.IntEntry(
+                parent,
+                textvariable=tvg).grid(row=row, column=start_column + 1)
+            tke.IntEntry(
+                parent,
+                textvariable=tvb).grid(row=row, column=start_column + 2)
+
+        window = tke.Toplevel(self.parent)
+        window.title('Coloring Settings')
+        tk.Label(window, text='Modulo 2:').grid(row=0, column=0, sticky=W)
+        _rgb_entries(
+            window,
+            settings.coloring.get_modulo2_i_r_var(),
+            settings.coloring.get_modulo2_i_g_var(),
+            settings.coloring.get_modulo2_i_b_var(),
+            0, 1)
+
+
     def about_dialog(self):
-        window = tke.Toplevel(self.root)
+        window = tke.Toplevel(self.parent)
         window.title('About {title}'.format(title=TITLE))
         tk.Label(window, text=ABOUT_TEXT).pack(padx=10, pady=5)
         tk.Button(window, text='Ok', command=window.destroy).pack(pady=5)
 
 
 if __name__ == '__main__':
-    Chaos()
+    root = tk.Tk()
+    Chaos(root)
