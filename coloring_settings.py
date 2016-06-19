@@ -73,8 +73,7 @@ class ColoringSettings(object):
             b = tk.Button(parent, text='Test')
             def _set_button_color():
                 b.config(
-                    bg='#{:02x}{:02x}{:02x}'.format(
-                        tvr.get(), tvg.get(), tvb.get()))
+                    bg=tke.tk_rgb(tvr.get(), tvg.get(), tvb.get()))
             b.config(command=_set_button_color)
             b.grid(row=row, column=start_column + 4)
             _set_button_color()

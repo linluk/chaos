@@ -12,6 +12,10 @@ Description: Some additional or slightliy changed tkinter widgets.
 import tkinter as tk
 
 
+def tk_rgb(r, g, b):
+    return '#{:02x}{:02x}{:02x}'.format(r, g, b)
+
+
 def __error_if_keys_exist(inst, keys, dct):
     for key in keys:
         if key in dct:
