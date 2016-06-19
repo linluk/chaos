@@ -17,6 +17,7 @@ import mandelbrot
 import julia
 import settings
 import coloring
+import coloring_settings
 
 VERSION = 'v0.0.0'
 TITLE = 'Chaos'
@@ -302,29 +303,7 @@ class Chaos:
 
 
     def coloring_settings(self):
-        def _rgb_entries(parent, tvr, tvg, tvb, row, start_column):
-            print(tvr.get())
-            print(tvg.get())
-            print(tvb.get())
-            tke.IntEntry(
-                parent,
-                textvariable=tvr).grid(row=row, column=start_column + 0)
-            tke.IntEntry(
-                parent,
-                textvariable=tvg).grid(row=row, column=start_column + 1)
-            tke.IntEntry(
-                parent,
-                textvariable=tvb).grid(row=row, column=start_column + 2)
-
-        window = tke.Toplevel(self.parent)
-        window.title('Coloring Settings')
-        tk.Label(window, text='Modulo 2:').grid(row=0, column=0, sticky=W)
-        _rgb_entries(
-            window,
-            settings.coloring.get_modulo2_i_r_var(),
-            settings.coloring.get_modulo2_i_g_var(),
-            settings.coloring.get_modulo2_i_b_var(),
-            0, 1)
+        coloring_settings.ColoringSettings(self.parent)
 
 
     def about_dialog(self):
@@ -336,4 +315,5 @@ class Chaos:
 
 if __name__ == '__main__':
     root = tk.Tk()
+    root.title('{} - {}'.format(TITLE, VERSION))
     Chaos(root)
